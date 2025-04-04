@@ -1,0 +1,26 @@
+---
+###################################################################
+#                 !!! DO NOT CHANGE THIS FILE !!!                 #
+#              This file is managed by Terraform in               #
+#          the broadinstitute/bibt-terraform repository.          #
+#  Any changes made outside that repository WILL be overwritten.  #
+###################################################################
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      patch-minor-sec-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    reviewers:
+      - broadinstitute/bits-blue-team-code-owners

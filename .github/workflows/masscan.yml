@@ -1,7 +1,8 @@
 name: Build and push masscan.Dockerfile changes to Artifact Registry.
 
 env:
-  MASSCAN_VER: "1.3.2"
+  MASSCAN_VERSION: "1.3.2"
+  GCLOUD_PYTHON3_VERSION: "v"
 
 on:
   push:
@@ -43,7 +44,8 @@ jobs:
           context: docker
           file: docker/masscan.Dockerfile
           build-args: |
-            MASSCAN_VERSION=${{ env.MASSCAN_VER }}
+            MASSCAN_VERSION=${{ env.MASSCAN_VERSION }}
+            GCLOUD_PYTHON3_VERSION=${{ env.GCLOUD_PYTHON3_VERSION }}
           tags: |
-            us-docker.pkg.dev/bibt-containers/masscan:v${{ env.MASSCAN_VER }}
+            us-docker.pkg.dev/bibt-containers/masscan:v${{ env.MASSCAN_VERSION }}-${{ env.GCLOUD_PYTHON3_VERSION }}
             us-docker.pkg.dev/bibt-containers/masscan:latest

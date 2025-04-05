@@ -1,7 +1,8 @@
 name: Build and push chef-inspec.Dockerfile changes to Artifact Registry.
 
 env:
-  INSPEC_VER: "4.26.13"
+  INSPEC_VERSION: "4.26.13"
+  GCLOUD_PYTHON3_VERSION: "v"
 
 on:
   push:
@@ -44,6 +45,7 @@ jobs:
           file: docker/chef-inspec.Dockerfile
           build-args: |
             INSPEC_VERSION=${{ env.INSPEC_VER }}
+            GCLOUD_PYTHON3_VERSION=${{ env.GCLOUD_PYTHON3_VER }}
           tags: |
-            us-docker.pkg.dev/bibt-containers/chef-inspec:v${{ env.INSPEC_VER }}
+            us-docker.pkg.dev/bibt-containers/chef-inspec:v${{ env.INSPEC_VER }}-${{ env.GCLOUD_PYTHON3_VER }}
             us-docker.pkg.dev/bibt-containers/chef-inspec:latest

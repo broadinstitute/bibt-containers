@@ -1,7 +1,8 @@
 name: Build and push gcloud-python3.Dockerfile changes to Artifact Registry.
 
 env:
-  PYTHON_VER: "3.13.2"
+  PYTHON_VERSION: "3.13.2"
+  CLOUD_SDK_VERSION: "517.0.0"
 
 on:
   push:
@@ -43,7 +44,8 @@ jobs:
           context: docker
           file: docker/gcloud-python3.Dockerfile
           build-args: |
-            PYTHON_VERSION=${{ env.PYTHON_VER }}
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            CLOUD_SDK_VERSION=${{ env.CLOUD_SDK_VERSION }}
           tags: |
-            us-docker.pkg.dev/bibt-containers/gcloud-python3:v${{ env.PYTHON_VER }}
+            us-docker.pkg.dev/bibt-containers/gcloud-python3:v${{ env.CLOUD_SDK_VERSION }}-${{ env.PYTHON_VERSION }}
             us-docker.pkg.dev/bibt-containers/gcloud-python3:latest

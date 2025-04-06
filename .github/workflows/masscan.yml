@@ -52,5 +52,5 @@ jobs:
             WGET_VERSION=${{ env.WGET_VERSION }}
             LIBPCAP_VERSION=${{ env.LIBPCAP_VERSION }}
           tags: |
-            us-docker.pkg.dev/bibt-containers/masscan:v${{ env.IMAGE_TAG }}
-            us-docker.pkg.dev/bibt-containers/masscan:latest
+            us-docker.pkg.dev/bibt-containers/docker/masscan:v${{ env.IMAGE_TAG }}
+            us-docker.pkg.dev/bibt-containers/docker/masscan:latest

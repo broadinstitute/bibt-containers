@@ -1,8 +1,11 @@
 name: Build and push masscan.Dockerfile changes to Artifact Registry.
 
 env:
-  MASSCAN_VERSION: "1.3.2"
-  GCLOUD_PYTHON3_VERSION: "v"
+  IMAGE_TAG: "1.0.0"
+  GCLOUD_SDK_VERSION: "517.0.0"
+  MASSCAN_COMMIT_HASH: "a31feaf5c943fc517752e23423ea130a92f0d473" # pragma: allowlist secret
+  WGET_VERSION: "1.21.3-1+deb12u1"
+  LIBPCAP_VERSION: "1.10.3-1"
 
 on:
   push:
@@ -44,8 +47,10 @@ jobs:
           context: docker
           file: docker/masscan.Dockerfile
           build-args: |
-            MASSCAN_VERSION=${{ env.MASSCAN_VERSION }}
-            GCLOUD_PYTHON3_VERSION=${{ env.GCLOUD_PYTHON3_VERSION }}
+            GCLOUD_SDK_VERSION=${{ env.GCLOUD_SDK_VERSION }}
+            MASSCAN_COMMIT_HASH=${{ env.MASSCAN_COMMIT_HASH }}
+            WGET_VERSION=${{ env.WGET_VERSION }}
+            LIBPCAP_VERSION=${{ env.LIBPCAP_VERSION }}
           tags: |
-            us-docker.pkg.dev/bibt-containers/masscan:v${{ env.MASSCAN_VERSION }}-${{ env.GCLOUD_PYTHON3_VERSION }}
+            us-docker.pkg.dev/bibt-containers/masscan:v${{ env.IMAGE_TAG }}
             us-docker.pkg.dev/bibt-containers/masscan:latest

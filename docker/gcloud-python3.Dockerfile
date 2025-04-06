@@ -37,7 +37,7 @@ WORKDIR /
 
 RUN python3 -m ensurepip \
     && python3 -m pip install --no-cache --no-cache-dir --upgrade \
-        pip==4.3.1 \
+        pip==25.0.1 \
         setuptools==78.1.0 \
         wheel==0.45.1
 

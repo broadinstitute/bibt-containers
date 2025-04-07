@@ -46,5 +46,5 @@ jobs:
           context: docker/gce-tcp-scanner
           file: docker/gce-tcp-scanner/Dockerfile
           tags: |
-            us-docker.pkg.dev/bibt-containers/gce-tcp-scanner:${{ steps.tags.outputs.sha_tag }}
-            us-docker.pkg.dev/bibt-containers/gce-tcp-scanner:latest
+            us-docker.pkg.dev/bibt-containers/docker/gce-tcp-scanner:${{ steps.tags.outputs.sha_tag }}
+            us-docker.pkg.dev/bibt-containers/docker/gce-tcp-scanner:latest

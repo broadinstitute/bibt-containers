@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - docker/gce-tcp-scanner/Dockerfile
-      - .github/workflows/gce-tcp-scanner.yml
 
 jobs:
   build-and-push:

@@ -43,7 +43,7 @@ jobs:
         uses: docker/build-push-action@v6.15.0
         with:
           push: true
-          context: docker
+          context: docker/gce-tcp-scanner
           file: docker/gce-tcp-scanner/Dockerfile
           tags: |
             us-docker.pkg.dev/bibt-containers/gce-tcp-scanner:${{ steps.tags.outputs.sha_tag }}

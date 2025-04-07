@@ -1,19 +1,14 @@
-name: Build and push masscan.Dockerfile changes to Artifact Registry.
+name: Build and push masscan/Dockerfile changes to Artifact Registry.
 
 env:
-  IMAGE_TAG: "1.0.0"
-  GCLOUD_SDK_VERSION: "517.0.0"
   MASSCAN_COMMIT_HASH: "a31feaf5c943fc517752e23423ea130a92f0d473" # pragma: allowlist secret
-  WGET_VERSION: "1.21.3-1+deb12u1"
-  LIBPCAP_VERSION: "1.10.3-1"
 
 on:
   push:
     branches:
       - main
     paths:
-      - docker/masscan.Dockerfile
-      - .github/workflows/masscan.yml
+      - docker/masscan/Dockerfile
 
 jobs:
   build-and-push:
@@ -40,17 +35,20 @@ jobs:
       - name: "Use gcloud CLI"
         run: "gcloud auth configure-docker us-docker.pkg.dev --quiet"
 
+      - name: Set up image tag
+        id: tags
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "sha_tag=$SHORT_SHA" >> $GITHUB_OUTPUT
+
       - name: Build and push
         uses: docker/build-push-action@v6.15.0
         with:
           push: true
-          context: docker
-          file: docker/masscan.Dockerfile
+          context: docker/masscan
+          file: docker/masscan/Dockerfile
           build-args: |
-            GCLOUD_SDK_VERSION=${{ env.GCLOUD_SDK_VERSION }}
             MASSCAN_COMMIT_HASH=${{ env.MASSCAN_COMMIT_HASH }}
-            WGET_VERSION=${{ env.WGET_VERSION }}
-            LIBPCAP_VERSION=${{ env.LIBPCAP_VERSION }}
           tags: |
-            us-docker.pkg.dev/bibt-containers/docker/masscan:v${{ env.IMAGE_TAG }}
+            us-docker.pkg.dev/bibt-containers/docker/masscan:v${{ steps.tags.outputs.sha_tag }}
             us-docker.pkg.dev/bibt-containers/docker/masscan:latest

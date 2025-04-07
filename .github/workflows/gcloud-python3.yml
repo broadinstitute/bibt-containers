@@ -1,4 +1,4 @@
-name: Build and push gcloud-python3.Dockerfile changes to Artifact Registry.
+name: Build and push gcloud-python3/Dockerfile changes to Artifact Registry.
 
 env:
   PYTHON_VERSION: "3.13.2"
@@ -9,8 +9,7 @@ on:
     branches:
       - main
     paths:
-      - docker/gcloud-python3.Dockerfile
-      - .github/workflows/gcloud-python3.yml
+      - docker/gcloud-python3/Dockerfile
 
 jobs:
   build-and-push:
@@ -41,8 +40,8 @@ jobs:
         uses: docker/build-push-action@v6.15.0
         with:
           push: true
-          context: docker
-          file: docker/gcloud-python3.Dockerfile
+          context: docker/gcloud-python3
+          file: docker/gcloud-python3/Dockerfile
           build-args: |
             PYTHON_VERSION=${{ env.PYTHON_VERSION }}
             CLOUD_SDK_VERSION=${{ env.CLOUD_SDK_VERSION }}

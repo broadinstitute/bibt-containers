@@ -43,6 +43,7 @@ RUN apk update && apk upgrade --no-cache \
 
 COPY --from=builder /build/masscan/LICENSE /usr/share/doc/masscan/LICENSE
 COPY --from=builder /build/masscan/bin/masscan /usr/bin/masscan
+COPY README.md /usr/share/doc/bibt-masscan/README.md
 
 HEALTHCHECK CMD [ "masscan", "--version" ]
 

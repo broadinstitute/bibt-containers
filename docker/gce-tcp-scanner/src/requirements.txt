@@ -1,0 +1,3 @@
+bibt-gcp-iam
+bibt-gcp-storage
+google-cloud-asset

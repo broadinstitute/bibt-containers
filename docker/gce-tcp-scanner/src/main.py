@@ -269,7 +269,7 @@ if __name__ == "__main__":
         required=False,
     )
 
-    for i in len(sys.argv):
+    for i in range(len(sys.argv)):
         print(f"{i}: {sys.argv[i]}")
 
     args = parser.parse_args()

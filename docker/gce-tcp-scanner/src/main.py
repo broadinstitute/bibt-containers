@@ -266,10 +266,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--asset_api_serv_acct",
         type=str,
-        help=(
-            "The service account email address to impersonate for Asset API calls."
-            " If not provided, the default credentials will be used."
-        ),
+        help=("The service account email address to impersonate for Asset API calls."),
         default=None,
         required=False,
     )

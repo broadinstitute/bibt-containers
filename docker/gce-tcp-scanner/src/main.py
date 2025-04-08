@@ -24,7 +24,7 @@ _RETRYABLE = [
 
 
 def is_retryable(exc):
-    print(f"Checking exception for retryable: {exc.__name__}")
+    print(f"Checking exception for retryable: {type(exc).__name__}")
     return isinstance(exc, _RETRYABLE)
 
 

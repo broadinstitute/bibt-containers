@@ -244,10 +244,7 @@ def main(bucket, org_id, asset_api_serv_acct=None):
     scan_config_blob = f"{date.today().isoformat()}/scan-config.txt"
     with open(tmp.name) as f:
         storage_client.write_gcs_from_file(
-            bucket,
-            f,
-            scan_config_blob,
-            content_type="text/plain",
+            bucket, f, scan_config_blob, mime_type="text/plain"
         )
     print(f"Scan config written to gs://{bucket}/{scan_config_blob}")
 

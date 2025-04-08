@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import re
+import sys
 from copy import deepcopy
 from random import shuffle
 from time import sleep
@@ -267,6 +268,9 @@ if __name__ == "__main__":
         default=None,
         required=False,
     )
+
+    for i in len(sys.argv):
+        print(f"{i}: {sys.argv[i]}")
 
     args = parser.parse_args()
 

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - docker/gce-tcp-scanner/port-scanner/**
+      - gce-tcp-scanner/port-scanner/**
 
 jobs:
   build-and-push:
@@ -42,8 +42,8 @@ jobs:
         uses: docker/build-push-action@v6.15.0
         with:
           push: true
-          context: docker/gce-tcp-scanner/port-scanner
-          file: docker/gce-tcp-scanner/port-scanner/Dockerfile
+          context: gce-tcp-scanner/port-scanner
+          file: gce-tcp-scanner/port-scanner/Dockerfile
           tags: |
             us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/port-scanner:${{ steps.tags.outputs.sha_tag }}
             us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/port-scanner:latest

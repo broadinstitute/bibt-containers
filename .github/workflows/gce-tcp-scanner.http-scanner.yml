@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - docker/gce-tcp-scanner/http-scanner/**
+      - gce-tcp-scanner/http-scanner/**
 
 jobs:
   build-and-push:
@@ -42,8 +42,8 @@ jobs:
         uses: docker/build-push-action@v6.15.0
         with:
           push: true
-          context: docker/gce-tcp-scanner/http-scanner
-          file: docker/gce-tcp-scanner/http-scanner/Dockerfile
+          context: gce-tcp-scanner/http-scanner
+          file: gce-tcp-scanner/http-scanner/Dockerfile
           tags: |
             us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/http-scanner:${{ steps.tags.outputs.sha_tag }}
             us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/http-scanner:latest

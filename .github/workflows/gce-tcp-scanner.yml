@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - docker/gce-tcp-scanner/
+      - docker/gce-tcp-scanner/**
 
 jobs:
   build-and-push:

@@ -2,6 +2,7 @@
 import argparse
 import re
 import sys
+import os
 from copy import deepcopy
 from random import shuffle
 from time import sleep
@@ -249,28 +250,80 @@ def main(bucket, org_id, asset_api_serv_acct=None):
     print(f"Scan config written to gs://{bucket}/{scan_config_blob}")
 
 
-if __name__ == "__main__":
+def get_config():
     parser = argparse.ArgumentParser(
         description=(
             "Generates a scan config based on GCE NAT IPs and open VPC Firewalls."
+            "Configuration may be passed via CLI arguments or environment variables. "
+            "Values passed via CLI will take precedence over environment variables."
         )
     )
 
     parser.add_argument(
-        "--bucket", type=str, help="The GCP bucket to use.", required=True
+        "--bucket",
+        type=str,
+        help=(
+            "The GCP bucket to use. May also be provided in the GCS_BUCKET "
+            "environment variable. "
+        ),
+        required=False,
     )
-    parser.add_argument("--org_id", type=str, help="GCP org ID.", required=True)
+    parser.add_argument(
+        "--org_id",
+        type=str,
+        help=(
+            'Your GCP organization ID, e.g. "123456789". '
+            "May also be provided in the GCP_ORG_ID environment variable. "
+        ),
+        required=False,
+    )
+    parser.add_argument(
+        "--pubsub-topic-uri",
+        type=str,
+        help=(
+            "Optional: The pubsub topic URI to which to send host discovery data. "
+            "Note that it should be the full topic URI, e.g. "
+            "`projects/123456789/topics/my-topic`. "
+            "May also be provided in the PUBSUB_TOPIC_URI environment variable. "
+        ),
+        required=False,
+    )
     parser.add_argument(
         "--asset_api_serv_acct",
         type=str,
-        help=("The service account email address to impersonate for Asset API calls."),
-        default=None,
+        help=(
+            "Optional: The service account email address to impersonate for "
+            "Asset API calls. "
+            "May also be provided in the ASSET_API_SERV_ACCT environment variable. "
+        ),
         required=False,
     )
 
-    for i in range(len(sys.argv)):
-        print(f"{i}: {sys.argv[i]}")
+    # for i in range(len(sys.argv)):
+    #     print(f"{i}: {sys.argv[i]}")
 
     args = parser.parse_args()
 
-    main(args.bucket, args.org_id, args.asset_api_serv_acct)
+    config = {
+        "org_id": args.org_id or os.environ.get("GCP_ORG_ID"),
+        "bucket": args.bucket or os.environ.get("GCS_BUCKET"),
+        "pubsub": args.bucket or os.environ.get("PUBSUB_TOPIC_URI"),
+        "asset_api_serv_acct": args.asset_api_serv_acct
+        or os.environ.get("ASSET_API_SERV_ACCT"),
+    }
+
+    if not config["bucket"] or not config["org_id"]:
+        print("ERROR: Missing required arguments.")
+        print(
+            "Please provide --bucket and --org_id or set "
+            "the GCS_BUCKET and GCP_ORG_ID environment variables."
+        )
+        parser.print_help()
+        sys.exit(1)
+
+    return config
+
+
+if __name__ == "__main__":
+    config = get_config()
+    main(config)

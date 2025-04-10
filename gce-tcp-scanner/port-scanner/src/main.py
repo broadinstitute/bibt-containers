@@ -3,7 +3,8 @@ import argparse
 import os
 import json
 import threading
-import time
+
+# import time
 
 
 # import subprocess
@@ -51,11 +52,16 @@ def main(config):
     subscriber = pubsub_v1.SubscriberClient()
     sub_path = subscriber.subscription_path(subscription_project, subscription_topic)
     set_ready(True)
-    subscriber.subscribe(sub_path, callback=nmap_host)
+    streaming_pull_future = subscriber.subscribe(sub_path, callback=nmap_host)
     print(f"Listening on Pub/Sub: {sub_path}")
 
-    while True:
-        time.sleep(60)
+    with subscriber:
+        try:
+            streaming_pull_future.result()
+        except TimeoutError:
+            streaming_pull_future.cancel()
+            print("Timeout occurred. Exiting.")
+            streaming_pull_future.result()
 
 
 def get_config():

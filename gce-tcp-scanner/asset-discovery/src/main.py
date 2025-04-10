@@ -354,9 +354,9 @@ def get_config():
     args = parser.parse_args()
 
     config = {
-        "gcp-org-id": args.org_id or os.environ.get("GCP_ORG_ID"),
-        "gcs-bucket": args.bucket or os.environ.get("GCS_BUCKET"),
-        "pubsub_topic_uri": args.bucket or os.environ.get("PUBSUB_TOPIC_URI"),
+        "gcp-org-id": args.gcp_org_id or os.environ.get("GCP_ORG_ID"),
+        "gcs-bucket": args.gcs_bucket or os.environ.get("GCS_BUCKET"),
+        "pubsub_topic_uri": args.pubsub_topic_uri or os.environ.get("PUBSUB_TOPIC_URI"),
         "asset-api-serv-acct": args.asset_api_serv_acct
         or os.environ.get("ASSET_API_SERV_ACCT"),
     }

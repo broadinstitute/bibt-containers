@@ -6,9 +6,9 @@ ARG CURL_VERSION="7.88.1-10+deb12u12"
 ARG CA_CERTIFICATES_VERSION="20230311"
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
-        nmap=${NMAP_VERSION} \
-        curl=${CURL_VERSION} \
-        ca_certificates=${CA_CERTIFICATES_VERSION} \
+        nmap=$NMAP_VERSION \
+        curl=$CURL_VERSION \
+        ca-certificates=$CA_CERTIFICATES_VERSION \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

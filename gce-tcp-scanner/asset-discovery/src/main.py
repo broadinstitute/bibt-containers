@@ -14,6 +14,7 @@ from bibt.gcp import storage
 from google.api_core import exceptions
 from google.api_core.retry import Retry
 from google.cloud import asset_v1
+from bibt.gcp import pubsub
 
 _RETRYABLE = [
     exceptions.TooManyRequests,
@@ -216,31 +217,79 @@ def get_open_networks(firewalls):
     return network_configs
 
 
-def main(bucket, org_id, asset_api_serv_acct=None):
+def main(config):
+    bucket = config["gcs-bucket"]
+    org_id = config["gcp-org-id"]
+    pubsub_topic_uri = config["pubsub-topic-uri"]
+    asset_api_serv_acct = config["asset-api-serv-acct"]
+
     print("Getting all firewalls...")
+    # Format:
+    # open_networks_dict = {
+    #     "projects/123456789/global/networks/default": ["1-122","49","8000-9000"],  # pragma: allowlist secret # noqa
+    #     "projects/987654321/global/networks/default": ["1-65535"],  # pragma: allowlist secret # noqa
+    # }
     firewalls = get_resources("Firewall", org_id, asset_api_serv_acct)
-    open_networks = get_open_networks(firewalls)
+    open_networks_dict = get_open_networks(firewalls)
 
     print("Getting all GCE instances...")
+    # Format:
+    # network_gces_dict = {
+    #     "projects/123456789/networks/default": ["1.2.3.4","4.4.4.4"],  # pragma: allowlist secret # noqa
+    #     "projects/987654321/global/networks/default": ["4.3.2.1", "1.1.1.1"],  # pragma: allowlist secret # noqa
+    # }
     instances = get_resources("Instance", org_id, asset_api_serv_acct)
-    gces_with_natIPs = get_instance_network_configs(instances)
+    network_gces_dict = get_instance_network_configs(instances)
 
-    print("Shuffling GCE list for randomness while scanning...")
-    gce_list = []
-    for k in gces_with_natIPs.keys():
-        gce_list.append({k: gces_with_natIPs[k]})
-    shuffle(gce_list)
+    print("Formatting for and shuffling list for randomness while scanning...")
+    # Formatting:
+    # network_gce_list = [
+    #   {"projects/123456789/global/networks/default": ["1.2.3.4", "4.4.4.4"]},  # pragma: allowlist secret # noqa
+    #   {"projects/987654321/global/networks/default": ["4.3.2.1", "1.1.1.1"]},  # pragma: allowlist secret # noqa
+    # ]
+    network_gce_list = []
+    for k in network_gces_dict.keys():
+        network_gce_list.append({k: network_gces_dict[k]})
+    shuffle(network_gce_list)
 
-    print("Preparing data for upload to GCS...")
-    tmp = tempfile.NamedTemporaryFile()
-    with open(tmp.name, "w") as f:
-        for i in range(len(gce_list)):
-            n = list(gce_list[i].keys())[0]
-            network = ".".join(n.split("/")[-5:])
-            ports = open_networks.get(n, None)
+    if pubsub_topic_uri:
+        print("Pushing scan data to nmap pubsub topic...")
+        # iterating through each network with GCEs with NAT IPs, formatting data,
+        # and sending to pubsub topic.
+        # Format:
+        # message = {
+        #   "network": "projects/123456789/global/networks/default",  # pragma: allowlist secret # noqa
+        #   "ips": ["1.2.3.4","4.4.4.4"],
+        #   "ports": ["1-122","49","8000-9000"],
+        # }
+        for i in range(len(network_gce_list)):
+            # .keys() returns a list so just grab first element since this is a
+            # 1-key dictionary:
+            network = list(network_gce_list[i].keys())[0]
+            ports = open_networks_dict.get(network, None)
             if not ports:
                 continue
-            f.write(f'{network}|{" ".join(gce_list[i][n])}|{",".join(ports)}\n')
+            message = {
+                "network": network,
+                "ips": network_gce_list[i][network],
+                "ports": ports,
+            }
+            pubsub_client = pubsub.Client()
+            pubsub_client.send_pubsub(pubsub_topic_uri, payload=message)
+            print(f"Sent message to pubsub topic: {message}")
+
+    print("Preparing data for upload to GCS...")
+    # The output looks like:
+    # projects.123456789.global.networks.default|1.2.3.4,4.4.4.4|1-122,49,8000-9000
+    # projects.987654321.global.networks.default|4.3.2.1,1.1.1.1|1-65535
+    tmp = tempfile.NamedTemporaryFile()
+    with open(tmp.name, "w") as f:
+        for i in range(len(network_gce_list)):
+            n = list(network_gce_list[i].keys())[0]
+            ports = open_networks_dict.get(n, None)
+            if not ports:
+                continue
+            f.write(f'{n}|{" ".join(network_gce_list[i][n])}|{",".join(ports)}\n')
 
     storage_client = storage.Client()
     scan_config_blob = f"{date.today().isoformat()}/scan-config.txt"
@@ -260,7 +309,7 @@ def get_config():
     )
 
     parser.add_argument(
-        "--bucket",
+        "--gcs-bucket",
         type=str,
         help=(
             "The GCP bucket to use. May also be provided in the GCS_BUCKET "
@@ -269,7 +318,7 @@ def get_config():
         required=False,
     )
     parser.add_argument(
-        "--org_id",
+        "--gcp-org-id",
         type=str,
         help=(
             'Your GCP organization ID, e.g. "123456789". '
@@ -289,7 +338,7 @@ def get_config():
         required=False,
     )
     parser.add_argument(
-        "--asset_api_serv_acct",
+        "--asset-api-serv-acct",
         type=str,
         help=(
             "Optional: The service account email address to impersonate for "
@@ -305,17 +354,17 @@ def get_config():
     args = parser.parse_args()
 
     config = {
-        "org_id": args.org_id or os.environ.get("GCP_ORG_ID"),
-        "bucket": args.bucket or os.environ.get("GCS_BUCKET"),
-        "pubsub": args.bucket or os.environ.get("PUBSUB_TOPIC_URI"),
-        "asset_api_serv_acct": args.asset_api_serv_acct
+        "gcp-org-id": args.org_id or os.environ.get("GCP_ORG_ID"),
+        "gcs-bucket": args.bucket or os.environ.get("GCS_BUCKET"),
+        "pubsub_topic_uri": args.bucket or os.environ.get("PUBSUB_TOPIC_URI"),
+        "asset-api-serv-acct": args.asset_api_serv_acct
         or os.environ.get("ASSET_API_SERV_ACCT"),
     }
 
-    if not config["bucket"] or not config["org_id"]:
+    if not config["gcs-bucket"] or not config["gcp-org-id"]:
         print("ERROR: Missing required arguments.")
         print(
-            "Please provide --bucket and --org_id or set "
+            "Please provide --gcs-bucket and --gcp-org-id or set "
             "the GCS_BUCKET and GCP_ORG_ID environment variables."
         )
         parser.print_help()
@@ -326,4 +375,5 @@ def get_config():
 
 if __name__ == "__main__":
     config = get_config()
+    print(f"Using the following config: {config}")
     main(config)

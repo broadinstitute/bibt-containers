@@ -1,3 +1,4 @@
 bibt-gcp-iam
+bibt-gcp-pubsub
 bibt-gcp-storage
 google-cloud-asset

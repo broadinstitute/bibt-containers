@@ -241,7 +241,7 @@ def main(config):
     instances = get_resources("Instance", org_id, asset_api_serv_acct)
     network_gces_dict = get_instance_network_configs(instances)
 
-    print("Formatting for and shuffling list for randomness while scanning...")
+    print("Formatting for and shufflisng list for randomness while scanning...")
     # Formatting:
     # network_gce_list = [
     #   {"projects/123456789/global/networks/default": ["1.2.3.4", "4.4.4.4"]},  # pragma: allowlist secret # noqa
@@ -356,7 +356,7 @@ def get_config():
     config = {
         "gcp-org-id": args.gcp_org_id or os.environ.get("GCP_ORG_ID"),
         "gcs-bucket": args.gcs_bucket or os.environ.get("GCS_BUCKET"),
-        "pubsub_topic_uri": args.pubsub_topic_uri or os.environ.get("PUBSUB_TOPIC_URI"),
+        "pubsub-topic-uri": args.pubsub_topic_uri or os.environ.get("PUBSUB_TOPIC_URI"),
         "asset-api-serv-acct": args.asset_api_serv_acct
         or os.environ.get("ASSET_API_SERV_ACCT"),
     }

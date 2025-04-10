@@ -4,6 +4,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 class HealthHandler(BaseHTTPRequestHandler):
     ready = False  # Shared readiness flag
 
+    def log_message(self, format, *args):
+        return  # Suppress logging
+
     def do_GET(self):
         if self.path == "/ready":
             self.send_response(200 if HealthHandler.ready else 503)
@@ -15,8 +18,8 @@ class HealthHandler(BaseHTTPRequestHandler):
 
 
 def run_health_server():
-    server = HTTPServer(("0.0.0.0", 8080), HealthHandler)
-    server.serve_forever()
+    with HTTPServer(("0.0.0.0", 8080), HealthHandler) as server:
+        server.serve_forever()
 
 
 def set_ready(state: bool):

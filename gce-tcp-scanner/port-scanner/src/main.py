@@ -6,7 +6,6 @@ import threading
 
 # import time
 
-
 # import subprocess
 from google.cloud import pubsub_v1
 
@@ -58,9 +57,9 @@ def main(config):
     with subscriber:
         try:
             streaming_pull_future.result()
-        except TimeoutError:
+        except Exception as e:
+            print(f"Listening for messages on {sub_path} threw an exception: {e}.")
             streaming_pull_future.cancel()
-            print("Timeout occurred. Exiting.")
             streaming_pull_future.result()
 
 

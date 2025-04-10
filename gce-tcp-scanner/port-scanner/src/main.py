@@ -2,11 +2,15 @@ import sys
 import argparse
 import os
 import json
+import threading
+import time
+
 
 # import subprocess
 from google.cloud import pubsub_v1
 
 # from bibt.gcp import storage
+from healthcheck import run_health_server, set_ready
 
 
 def nmap_host(message):
@@ -46,10 +50,9 @@ def main(config):
 
     subscriber = pubsub_v1.SubscriberClient()
     sub_path = subscriber.subscription_path(subscription_project, subscription_topic)
+    set_ready(True)
     subscriber.subscribe(sub_path, callback=nmap_host)
     print(f"Listening on Pub/Sub: {sub_path}")
-
-    import time
 
     while True:
         time.sleep(60)
@@ -116,5 +119,7 @@ def get_config():
 
 
 if __name__ == "__main__":
+    # Start the health server in the background
+    threading.Thread(target=run_health_server, daemon=True).start()
     config = get_config()
     main(config)

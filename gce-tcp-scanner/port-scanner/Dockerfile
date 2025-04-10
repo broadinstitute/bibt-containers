@@ -20,7 +20,7 @@ COPY src/requirements.txt .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 # Copy script
-COPY src/main.py .
+COPY src/*.py .
 
 ENV PYTHONUNBUFFERED=1
 

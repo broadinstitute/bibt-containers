@@ -93,7 +93,7 @@ def get_config():
     args = parser.parse_args()
 
     config = {
-        "gcs-bucket": args.bucket or os.environ.get("GCS_BUCKET"),
+        "gcs-bucket": args.gcs_bucket or os.environ.get("GCS_BUCKET"),
         "subscription-project": args.subscription_project
         or os.environ.get("SUBSCRIPTION_PROJECT"),
         "subscription-topic": args.subscription_topic

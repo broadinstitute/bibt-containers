@@ -28,10 +28,10 @@ def nmap_host(message):
         ips = data["ips"]
         ports = data["ports"]
 
-        results_outfile = "/tmp/results.xml"
-        if ports == "1-65535":
+        results_outfile = f"/tmp/{network.replace('/', '.')}.results.xml"
+        if ports[0] == "1-65535":
             print(f"Running reduced-intensity nmap scan on {network} | {ips} | {ports}")
-            result = subprocess.run(
+            subprocess.run(
                 [
                     "nmap",
                     " ".join(ips),
@@ -47,13 +47,11 @@ def nmap_host(message):
                     "2",
                     "-oX",
                     results_outfile,
-                ],
-                capture_output=True,
-                text=True,
+                ]
             )
         else:
             print(f"Running full-intensity nmap scan on {network} | {ips} | {ports}")
-            result = subprocess.run(
+            subprocess.run(
                 [
                     "nmap",
                     " ".join(ips),
@@ -69,12 +67,9 @@ def nmap_host(message):
                     "8",
                     "-oX",
                     results_outfile,
-                ],
-                capture_output=True,
-                text=True,
+                ]
             )
-        print("Scan complete. stdout:")
-        print(result.stdout)
+        print(f"Scan complete on {network} | {ips} | {ports}")
 
         print("Uploading results to GCS...")
         storage_client = storage.Client()

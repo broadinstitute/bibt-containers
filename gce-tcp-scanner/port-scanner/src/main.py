@@ -3,11 +3,13 @@ import argparse
 import os
 import json
 import threading
+from datetime import date
 
 # import time
 
-# import subprocess
+import subprocess
 from google.cloud import pubsub_v1
+from bibt.gcp import storage
 
 # from bibt.gcp import storage
 from healthcheck import run_health_server, set_ready
@@ -26,15 +28,69 @@ def nmap_host(message):
         ips = data["ips"]
         ports = data["ports"]
 
-        print(f"Running nmap scan on {network} | {ips} | {ports}")
-        # result = subprocess.run(
-        #     ["nmap", "-p", str(port), ip], capture_output=True, text=True
-        # )
-        # print(result.stdout)
+        results_outfile = "/tmp/results.xml"
+        if ports == "1-65535":
+            print(f"Running reduced-intensity nmap scan on {network} | {ips} | {ports}")
+            result = subprocess.run(
+                [
+                    "nmap",
+                    " ".join(ips),
+                    "-p",
+                    ",".join(ports),
+                    "-Pn",
+                    "-T4",
+                    "sS",
+                    "--stats-every",
+                    "10m",
+                    "-sV",
+                    "--version-intensity",
+                    "2",
+                    "-oX",
+                    results_outfile,
+                ],
+                capture_output=True,
+                text=True,
+            )
+        else:
+            print(f"Running full-intensity nmap scan on {network} | {ips} | {ports}")
+            result = subprocess.run(
+                [
+                    "nmap",
+                    " ".join(ips),
+                    "-p",
+                    ",".join(ports),
+                    "-Pn",
+                    "-T4",
+                    "sS",
+                    "--stats-every",
+                    "10m",
+                    "-sV",
+                    "--version-intensity",
+                    "8",
+                    "-oX",
+                    results_outfile,
+                ],
+                capture_output=True,
+                text=True,
+            )
+        print("Scan complete. stdout:")
+        print(result.stdout)
 
-        # # Optional: upload results
-        # filename = f"nmap_{ip.replace('.', '-')}_{port}.txt"
-        # upload_to_gcs(result.stdout, filename)
+        print("Uploading results to GCS...")
+        storage_client = storage.Client()
+        results_blob_name = (
+            f"{date.today().isoformat()}/{network.replace('/', '.')}.scan-results.xml"
+        )
+        storage_client.write_gcs_from_file(
+            os.environ["GCS_BUCKET"],
+            results_blob_name,
+            results_outfile,
+            mime_type="application/xml",
+        )
+        print(
+            f"Scan results written to gs://{os.environ['GCS_BUCKET']}"
+            f"/{results_blob_name}"
+        )
 
     except Exception as e:
         print(f"Scan failed: {e}")

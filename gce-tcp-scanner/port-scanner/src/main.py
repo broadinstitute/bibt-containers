@@ -173,7 +173,7 @@ def get_config():
         or os.environ.get("SUBSCRIPTION_PROJECT"),
         "subscription-topic": args.subscription_topic
         or os.environ.get("SUBSCRIPTION_TOPIC"),
-        "evaluate-scan-topic-uri": args.tcp_scanner_topic_uri
+        "evaluate-scan-topic-uri": args.evaluate_scan_topic_uri
         or os.environ.get("EVALUATE_SCAN_TOPIC_URI"),
     }
 

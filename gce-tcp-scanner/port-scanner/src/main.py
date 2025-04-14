@@ -4,12 +4,14 @@ import os
 import json
 import threading
 from datetime import date
+import xmltodict
 
 # import time
 
 import subprocess
 from google.cloud import pubsub_v1
 from bibt.gcp import storage
+import json
 
 # from bibt.gcp import storage
 from healthcheck import run_health_server, set_ready
@@ -72,20 +74,37 @@ def nmap_host(message):
         print(f"Scan complete on {network} | {ips} | {ports}")
 
         print("Uploading results to GCS...")
+        # Write both XML and JSON to GCS
         storage_client = storage.Client()
         results_blob_name = (
-            f"{date.today().isoformat()}/{network.replace('/', '.')}.scan-results.xml"
+            f"{date.today().isoformat()}/{network.replace('/', '.')}.scan-results"
         )
         storage_client.write_gcs_from_file(
             os.environ["GCS_BUCKET"],
-            results_blob_name,
+            f"{results_blob_name}.xml",
             results_outfile,
             mime_type="application/xml",
         )
+        with open(results_outfile, "r") as f:
+            results = f.read()
+
+        results_json = xmltodict.parse(results, attr_prefix="", cdata_key="value")[
+            "nmaprun"
+        ]
+        storage_client.write_gcs(
+            os.environ["GCS_BUCKET"],
+            f"{results_blob_name}.json",
+            json.dumps(results_json),
+            mime_type="application/json",
+        )
+
         print(
             f"Scan results written to gs://{os.environ['GCS_BUCKET']}"
             f"/{results_blob_name}"
         )
+
+        # # Evaluate the results
+        # evaluate_results(results_json)
 
     except Exception as e:
         print(f"Scan failed: {e}")
@@ -96,8 +115,8 @@ def main(config):
     subscription_topic = config["subscription-topic"]
     if not os.environ.get("GCS_BUCKET"):
         os.environ["GCS_BUCKET"] = config["gcs-bucket"]
-    if not os.environ.get("HTTP_SCANNER_TOPIC_URI"):
-        os.environ["HTTP_SCANNER_TOPIC_URI"] = config["http-scanner-topic-uri"]
+    if not os.environ.get("TCP_SCANNER_TOPIC_URI"):
+        os.environ["TCP_SCANNER_TOPIC_URI"] = config["tcp-scanner-topic-uri"]
 
     subscriber = pubsub_v1.SubscriberClient()
     sub_path = subscriber.subscription_path(subscription_project, subscription_topic)
@@ -140,7 +159,7 @@ def get_config():
         required=False,
     )
     parser.add_argument(
-        "--http-scanner-topic-uri",
+        "--tcp-scanner-topic-uri",
         type=str,
         help=(),
         required=False,
@@ -154,8 +173,8 @@ def get_config():
         or os.environ.get("SUBSCRIPTION_PROJECT"),
         "subscription-topic": args.subscription_topic
         or os.environ.get("SUBSCRIPTION_TOPIC"),
-        "http-scanner-topic-uri": args.http_scanner_topic_uri
-        or os.environ.get("HTTP_SCANNER_TOPIC_URI"),
+        "tcp-scanner-topic-uri": args.tcp_scanner_topic_uri
+        or os.environ.get("TCP_SCANNER_TOPIC_URI"),
     }
 
     if (

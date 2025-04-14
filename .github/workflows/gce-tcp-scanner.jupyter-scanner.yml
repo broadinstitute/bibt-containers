@@ -1,11 +1,11 @@
-name: Build and push gce-tcp-scanner/http-scanner/Dockerfile changes to Artifact Registry.
+name: Build and push gce-tcp-scanner/jupyter-scanner/Dockerfile changes to Artifact Registry.
 
 on:
   push:
     branches:
       - main
     paths:
-      - gce-tcp-scanner/http-scanner/**
+      - gce-tcp-scanner/jupyter-scanner/**
 
 jobs:
   build-and-push:
@@ -42,8 +42,8 @@ jobs:
         uses: docker/build-push-action@v6.15.0
         with:
           push: true
-          context: gce-tcp-scanner/http-scanner
-          file: gce-tcp-scanner/http-scanner/Dockerfile
+          context: gce-tcp-scanner/jupyter-scanner
+          file: gce-tcp-scanner/jupyter-scanner/Dockerfile
           tags: |
-            us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/http-scanner:${{ steps.tags.outputs.sha_tag }}
-            us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/http-scanner:latest
+            us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/jupyter-scanner:${{ steps.tags.outputs.sha_tag }}
+            us-docker.pkg.dev/bibt-containers/gce-tcp-scanner/jupyter-scanner:latest

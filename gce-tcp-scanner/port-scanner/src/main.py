@@ -115,8 +115,8 @@ def main(config):
     subscription_topic = config["subscription-topic"]
     if not os.environ.get("GCS_BUCKET"):
         os.environ["GCS_BUCKET"] = config["gcs-bucket"]
-    if not os.environ.get("TCP_SCANNER_TOPIC_URI"):
-        os.environ["TCP_SCANNER_TOPIC_URI"] = config["tcp-scanner-topic-uri"]
+    if not os.environ.get("EVALUATE_SCAN_TOPIC_URI"):
+        os.environ["EVALUATE_SCAN_TOPIC_URI"] = config["evaluate-scan-topic-uri"]
 
     subscriber = pubsub_v1.SubscriberClient()
     sub_path = subscriber.subscription_path(subscription_project, subscription_topic)
@@ -159,7 +159,7 @@ def get_config():
         required=False,
     )
     parser.add_argument(
-        "--tcp-scanner-topic-uri",
+        "--evaluate-scan-topic-uri",
         type=str,
         help=(),
         required=False,
@@ -173,8 +173,8 @@ def get_config():
         or os.environ.get("SUBSCRIPTION_PROJECT"),
         "subscription-topic": args.subscription_topic
         or os.environ.get("SUBSCRIPTION_TOPIC"),
-        "tcp-scanner-topic-uri": args.tcp_scanner_topic_uri
-        or os.environ.get("TCP_SCANNER_TOPIC_URI"),
+        "evaluate-scan-topic-uri": args.tcp_scanner_topic_uri
+        or os.environ.get("EVALUATE_SCAN_TOPIC_URI"),
     }
 
     if (
@@ -184,8 +184,9 @@ def get_config():
     ):
         print("ERROR: Missing required arguments.")
         print(
-            "Please provide --subscription-project and --subscription-topic or set "
-            "the GCS_BUCKET and GCP_ORG_ID environment variables."
+            "Please provide --subscription-project, --subscription-topic, and "
+            "--gcs-bucket CLI arguments or set the SUBSCRIPTION_PROJECT ",
+            "SUBSCRIPTION_TOPIC, and GCS_BUCKET environment variables.",
         )
         parser.print_help()
         sys.exit(1)

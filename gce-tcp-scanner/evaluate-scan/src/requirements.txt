@@ -4,6 +4,8 @@ bibt-gcp-pubsub
 bibt-gcp-secrets
 bibt-slack
 fake-useragent
+google-cloud-asset
+google-cloud-logging
 google-cloud-pubsub
 requests
 xmltodict

@@ -341,12 +341,6 @@ def get_config():
     )
 
     parser.add_argument(
-        "--gcp-org-id",
-        type=str,
-        help=(),
-        required=False,
-    )
-    parser.add_argument(
         "--subscription-project",
         type=str,
         help=(),

@@ -305,6 +305,7 @@ def evaluate_results(results_json):
                         alert_vulnerable_jupyter(host, port["portid"], is_server)
                 else:
                     print(f"Skipping checks with script output: {output}")
+    print("Check complete.")
 
 
 def main(config):

@@ -1,3 +1,4 @@
+bibt-gcp-pubsub
 bibt-gcp-storage
 google-cloud-pubsub
 xmltodict

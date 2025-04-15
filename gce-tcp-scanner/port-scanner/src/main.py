@@ -11,7 +11,7 @@ import xmltodict
 import subprocess
 from google.cloud import pubsub_v1
 from bibt.gcp import storage
-import json
+from bibt.gcp import pubsub
 
 # from bibt.gcp import storage
 from healthcheck import run_health_server, set_ready
@@ -103,8 +103,10 @@ def nmap_host(message):
             f"/{results_blob_name}"
         )
 
-        # # Evaluate the results
-        # evaluate_results(results_json)
+        ps_client = pubsub.Client()
+        ps_client.send_pubsub(
+            topic_uri=os.environ["EVALUATE_SCAN_TOPIC_URI"], payload=results_json
+        )
 
     except Exception as e:
         print(f"Scan failed: {e}")

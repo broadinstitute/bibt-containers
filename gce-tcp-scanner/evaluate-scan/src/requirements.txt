@@ -1,0 +1,9 @@
+bibt-gcp-asset
+bibt-gcp-iam
+bibt-gcp-pubsub
+bibt-gcp-secrets
+bibt-slack
+fake-useragent
+google-cloud-pubsub
+requests
+xmltodict

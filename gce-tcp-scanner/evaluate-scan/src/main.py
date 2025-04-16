@@ -141,9 +141,9 @@ def _get_startup_log(project, instance_id, last_starttime):
     return None
 
 
-def alert_vulnerable_jupyter(host, port_id, is_server):
+def alert_vulnerable_jupyter(project, host, port_id, is_server):
     print("Alerting on vulnerable jupyter...")
-    host_metadata = _get_host_metadata(host["project"], host["address"]["addr"])
+    host_metadata = _get_host_metadata(project, host["address"]["addr"])
     hostdata = ""
     if host_metadata:
         hostdata = (
@@ -151,7 +151,7 @@ def alert_vulnerable_jupyter(host, port_id, is_server):
             f"- *GCE Description*: `{host_metadata.resource.data.get('description')}`\n"
         )
         log_entry = _get_startup_log(
-            host["project"],
+            project,
             host_metadata.resource.data.get("id"),
             host_metadata.resource.data.get("lastStartTimestamp"),
         )
@@ -265,6 +265,7 @@ def alert_vulnerable_jupyter(host, port_id, is_server):
 def evaluate_results(message):
     message.ack()
     results_json = json.loads(message.data.decode("utf-8"))
+    project = results_json["network"].split("/")[-4]
     host_list = results_json.get("host", [])
     if not isinstance(host_list, list):
         host_list = [host_list]
@@ -299,10 +300,12 @@ def evaluate_results(message):
                     if is_vulnerable_jupyter(
                         host["address"]["addr"],
                         port["portid"],
-                        host["project"],
+                        project,
                         is_server,
                     ):
-                        alert_vulnerable_jupyter(host, port["portid"], is_server)
+                        alert_vulnerable_jupyter(
+                            project, host, port["portid"], is_server
+                        )
                 else:
                     print(f"Skipping checks with script output: {output}")
     print("Check complete.")

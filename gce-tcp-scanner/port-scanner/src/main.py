@@ -30,18 +30,18 @@ def nmap_host(message):
         ips = data["ips"]
         ports = data["ports"]
 
-        results_outfile = f"/tmp/{network.replace('/', '.')}.results.xml"
+        network_str = ".".join(network.split("/")[-5:])
+        results_outfile = f"/tmp/{network_str}.results.xml"
         if ports[0] == "1-65535":
             print(f"Running reduced-intensity nmap scan on {network} | {ips} | {ports}")
             subprocess.run(
                 [
                     "nmap",
-                    " ".join(ips),
                     "-p",
                     ",".join(ports),
                     "-Pn",
                     "-T4",
-                    "sS",
+                    "-sS",
                     "--stats-every",
                     "10m",
                     "-sV",
@@ -49,6 +49,7 @@ def nmap_host(message):
                     "2",
                     "-oX",
                     results_outfile,
+                    " ".join(ips),
                 ]
             )
         else:
@@ -56,12 +57,11 @@ def nmap_host(message):
             subprocess.run(
                 [
                     "nmap",
-                    " ".join(ips),
                     "-p",
                     ",".join(ports),
                     "-Pn",
                     "-T4",
-                    "sS",
+                    "-sS",
                     "--stats-every",
                     "10m",
                     "-sV",
@@ -69,6 +69,7 @@ def nmap_host(message):
                     "8",
                     "-oX",
                     results_outfile,
+                    " ".join(ips),
                 ]
             )
         print(f"Scan complete on {network} | {ips} | {ports}")
@@ -77,7 +78,7 @@ def nmap_host(message):
         # Write both XML and JSON to GCS
         storage_client = storage.Client()
         results_blob_name = (
-            f"{date.today().isoformat()}/{network.replace('/', '.')}.scan-results"
+            f"{date.today().isoformat()}/{network_str.replace('/', '.')}.scan-results"
         )
         storage_client.write_gcs_from_file(
             os.environ["GCS_BUCKET"],

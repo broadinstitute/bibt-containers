@@ -34,42 +34,42 @@ def nmap_host(message):
         results_outfile = f"/tmp/{network_str}.results.xml"
         if ports[0] == "1-65535":
             print(f"Running reduced-intensity nmap scan on {network} | {ips} | {ports}")
-            subprocess.run(
-                [
-                    "nmap",
-                    "-p",
-                    ",".join(ports),
-                    "-Pn",
-                    "-T4",
-                    "-sS",
-                    "--stats-every",
-                    "10m",
-                    "-sV",
-                    "--version-intensity",
-                    "2",
-                    "-oX",
-                    results_outfile,
-                ].extend(ips)
-            )
+            args = [
+                "nmap",
+                "-p",
+                ",".join(ports),
+                "-Pn",
+                "-T4",
+                "-sS",
+                "--stats-every",
+                "10m",
+                "-sV",
+                "--version-intensity",
+                "2",
+                "-oX",
+                results_outfile,
+            ]
+            args.extend(ips)
         else:
             print(f"Running full-intensity nmap scan on {network} | {ips} | {ports}")
-            subprocess.run(
-                [
-                    "nmap",
-                    "-p",
-                    ",".join(ports),
-                    "-Pn",
-                    "-T4",
-                    "-sS",
-                    "--stats-every",
-                    "10m",
-                    "-sV",
-                    "--version-intensity",
-                    "8",
-                    "-oX",
-                    results_outfile,
-                ].extend(ips)
-            )
+            args = [
+                "nmap",
+                "-p",
+                ",".join(ports),
+                "-Pn",
+                "-T4",
+                "-sS",
+                "--stats-every",
+                "10m",
+                "-sV",
+                "--version-intensity",
+                "8",
+                "-oX",
+                results_outfile,
+            ]
+            args.extend(ips)
+        print(f"Running command: {' '.join(args)}")
+        subprocess.run(args)
         print(f"Scan complete on {network} | {ips} | {ports}")
 
         print("Uploading results to GCS...")

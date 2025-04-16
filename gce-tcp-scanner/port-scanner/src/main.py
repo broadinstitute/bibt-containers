@@ -90,6 +90,7 @@ def nmap_host(message):
         results_json = xmltodict.parse(results, attr_prefix="", cdata_key="value")[
             "nmaprun"
         ]
+        results_json["network"] = network
         storage_client.write_gcs(
             os.environ["GCS_BUCKET"],
             f"{results_blob_name}.json",

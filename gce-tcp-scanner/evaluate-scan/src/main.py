@@ -270,10 +270,7 @@ def evaluate_results(message):
         host_list = [host_list]
 
     for host in host_list:
-        print(
-            f"Checking: {host['project']} // {host['network']} "
-            f"// {host['address']['addr']}"
-        )
+        print(f"Checking: {results_json['network']} // {host['address']['addr']}")
 
         if "ports" not in host:
             continue

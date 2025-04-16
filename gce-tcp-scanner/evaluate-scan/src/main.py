@@ -276,7 +276,11 @@ def evaluate_results(message):
         if "ports" not in host:
             continue
 
-        for port in host["ports"].get("port", []):
+        port_list = host["ports"].get("port", [])
+        if not isinstance(port_list, list):
+            port_list = [port_list]
+
+        for port in port_list:
             print(f"Port data: {port}")
             if isinstance(port, str):
                 continue

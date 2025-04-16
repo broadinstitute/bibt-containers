@@ -8,6 +8,7 @@ import requests
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+import json
 
 from google.cloud import asset_v1
 from bibt.gcp import iam
@@ -261,7 +262,9 @@ def alert_vulnerable_jupyter(host, port_id, is_server):
     return
 
 
-def evaluate_results(results_json):
+def evaluate_results(message):
+    message.ack()
+    results_json = json.loads(message.data.decode("utf-8"))
     host_list = results_json.get("host", [])
     if not isinstance(host_list, list):
         host_list = [host_list]

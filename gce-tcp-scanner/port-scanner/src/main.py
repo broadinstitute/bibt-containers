@@ -49,8 +49,7 @@ def nmap_host(message):
                     "2",
                     "-oX",
                     results_outfile,
-                    " ".join(ips),
-                ]
+                ].extend(ips)
             )
         else:
             print(f"Running full-intensity nmap scan on {network} | {ips} | {ports}")
@@ -69,8 +68,7 @@ def nmap_host(message):
                     "8",
                     "-oX",
                     results_outfile,
-                    " ".join(ips),
-                ]
+                ].extend(ips)
             )
         print(f"Scan complete on {network} | {ips} | {ports}")
 
